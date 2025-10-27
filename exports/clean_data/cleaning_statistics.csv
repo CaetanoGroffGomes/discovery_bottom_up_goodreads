@@ -1,0 +1,8 @@
+Métrica,Valor
+Dataset Original,58292
+Anos Inválidos Removidos,1
+Duplicatas ISBN Removidas,194
+Duplicatas Título Removidas,2603
+Total Removido (IDs únicos),2595
+Dataset Limpo,55502
+Taxa de Retenção (%),95.21
