@@ -1,0 +1,10 @@
+Métrica,Valor
+Total de livros,58292
+Livros únicos,53629
+Livros com duplicatas,4663
+% com duplicatas,8.0%
+Total de clusters,2060
+Maior cluster,19
+Média de livros por cluster,2.3
+Total de pares similares,3074
+Similaridade média,0.940
