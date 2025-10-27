@@ -1,0 +1,44 @@
+# ============================================================
+# REQUIREMENTS.TXT - Discovery Bottom-Up com Dados
+# ============================================================
+# Projeto de análise exploratória e clustering de livros Goodreads
+# Python 3.8+
+
+# ============================================================
+# CORE - Manipulação de Dados
+# ============================================================
+pandas>=2.0.0
+numpy>=1.24.0
+
+# ============================================================
+# MACHINE LEARNING
+# ============================================================
+scikit-learn>=1.3.0
+
+# ============================================================
+# VISUALIZAÇÃO
+# ============================================================
+matplotlib>=3.7.0
+
+# ============================================================
+# JUPYTER (Opcional - para notebooks)
+# ============================================================
+jupyter>=1.0.0
+ipykernel>=6.25.0
+
+# ============================================================
+# UTILITÁRIOS
+# ============================================================
+pathlib  # Gerenciamento de arquivos (built-in no Python 3.4+, mas listado para clareza)
+
+# ============================================================
+# NOTAS
+# ============================================================
+# Para instalar todas as dependências:
+#   pip install -r requirements.txt
+#
+# Para instalar com flag de sistema (se necessário):
+#   pip install -r requirements.txt --break-system-packages
+#
+# Versões testadas:
+#   Python 3.8, 3.9, 3.10, 3.11
