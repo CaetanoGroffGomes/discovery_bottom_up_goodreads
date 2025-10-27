@@ -1,0 +1,423 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Tabela de Clusters - Goodreads</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            padding: 20px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #667eea;
+        }
+        .stat-box {
+            text-align: center;
+            padding: 15px;
+        }
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        .table-container {
+            padding: 20px;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        tr:hover {
+            background-color: #f5f5ff;
+            cursor: pointer;
+        }
+        .cluster-id {
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #667eea;
+            text-align: center;
+        }
+        .size {
+            font-weight: 600;
+            color: #333;
+        }
+        .percentage {
+            color: #666;
+            font-size: 0.9em;
+        }
+        .author {
+            color: #333;
+            font-weight: 500;
+        }
+        .language {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.85em;
+        }
+        .year-range {
+            color: #666;
+            font-family: monospace;
+        }
+        .example {
+            color: #555;
+            font-style: italic;
+            font-size: 0.9em;
+        }
+        .filter-box {
+            padding: 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .filter-box input {
+            width: 100%;
+            padding: 12px;
+            font-size: 1em;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            transition: border-color 0.3s;
+        }
+        .filter-box input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.8em;
+            font-weight: 600;
+            margin-right: 5px;
+        }
+        .badge-large {
+            background: #ff6b6b;
+            color: white;
+        }
+        .badge-medium {
+            background: #ffd93d;
+            color: #333;
+        }
+        .badge-small {
+            background: #6bcf7f;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 Tabela de Clusters - Goodreads</h1>
+            <p>Análise visual dos clusters gerados</p>
+        </div>
+
+        <div class="stats">
+            <div class="stat-box">
+                <div class="stat-number">55,502</div>
+                <div class="stat-label">Total de Livros</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number">10</div>
+                <div class="stat-label">Clusters</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number">5550</div>
+                <div class="stat-label">Média por Cluster</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number">19158</div>
+                <div class="stat-label">Maior Cluster</div>
+            </div>
+        </div>
+
+        <div class="filter-box">
+            <input type="text" id="searchInput" placeholder="🔍 Buscar por autor, língua, publisher..."
+                   onkeyup="filterTable()">
+        </div>
+
+        <div class="table-container">
+            <table id="clusterTable">
+                <thead>
+                    <tr>
+                        <th>Cluster</th>
+                        <th>Tamanho</th>
+                        <th>Top Autor</th>
+                        <th>Conc. Autor</th>
+                        <th>Autores Únicos</th>
+                        <th>Língua</th>
+                        <th>Ano Médio</th>
+                        <th>Período</th>
+                        <th>Top Publisher</th>
+                        <th>Exemplo de Título</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    <tr>
+                        <td class="cluster-id">0</td>
+                        <td class="size">
+                            4,050
+                            <span class="badge badge-medium">Médio</span>
+                            <br>
+                            <span class="percentage">7.3%</span>
+                        </td>
+                        <td class="author">Marilyn Herbert</td>
+                        <td>0%</td>
+                        <td>3505</td>
+                        <td><span class="language">unknown</span> 79%</td>
+                        <td class="year-range">1999</td>
+                        <td class="year-range">1936-2019</td>
+                        <td>Routledge</td>
+                        <td class="example">In a Sunburned Country</td>
+                    </tr>
+    
+                    <tr>
+                        <td class="cluster-id">1</td>
+                        <td class="size">
+                            1,189
+                            <span class="badge badge-small">Pequeno</span>
+                            <br>
+                            <span class="percentage">2.1%</span>
+                        </td>
+                        <td class="author">Pimsleur Language Programs</td>
+                        <td>1%</td>
+                        <td>1071</td>
+                        <td><span class="language">unknown</span> 80%</td>
+                        <td class="year-range">2000</td>
+                        <td class="year-range">1964-2016</td>
+                        <td>University Press of Mississipp</td>
+                        <td class="example">Agile Web Development with Rails: A Pragmatic Guid...</td>
+                    </tr>
+    
+                    <tr>
+                        <td class="cluster-id">2</td>
+                        <td class="size">
+                            580
+                            <span class="badge badge-small">Pequeno</span>
+                            <br>
+                            <span class="percentage">1.0%</span>
+                        </td>
+                        <td class="author">Rumiko Takahashi</td>
+                        <td>2%</td>
+                        <td>414</td>
+                        <td><span class="language">unknown</span> 65%</td>
+                        <td class="year-range">2000</td>
+                        <td class="year-range">1944-2017</td>
+                        <td>VIZ Media LLC</td>
+                        <td class="example">Best of Ruby Quiz Volume One</td>
+                    </tr>
+    
+                    <tr>
+                        <td class="cluster-id">3</td>
+                        <td class="size">
+                            19,158
+                            <span class="badge badge-large">Grande</span>
+                            <br>
+                            <span class="percentage">34.5%</span>
+                        </td>
+                        <td class="author">Harold Bloom</td>
+                        <td>0%</td>
+                        <td>12075</td>
+                        <td><span class="language">unknown</span> 87%</td>
+                        <td class="year-range">2000</td>
+                        <td class="year-range">1900-2019</td>
+                        <td>Oxford University Press, USA</td>
+                        <td class="example">Hatchet Jobs: Writings on Contemporary Fiction</td>
+                    </tr>
+    
+                    <tr>
+                        <td class="cluster-id">4</td>
+                        <td class="size">
+                            6,584
+                            <span class="badge badge-large">Grande</span>
+                            <br>
+                            <span class="percentage">11.9%</span>
+                        </td>
+                        <td class="author">J.R.R. Tolkien</td>
+                        <td>0%</td>
+                        <td>4803</td>
+                        <td><span class="language">unknown</span> 66%</td>
+                        <td class="year-range">1999</td>
+                        <td class="year-range">162-2020</td>
+                        <td>Oxford University Press, USA</td>
+                        <td class="example">Harry Potter and the Order of the Phoenix (Harry P...</td>
+                    </tr>
+    
+                    <tr>
+                        <td class="cluster-id">5</td>
+                        <td class="size">
+                            4,660
+                            <span class="badge badge-medium">Médio</span>
+                            <br>
+                            <span class="percentage">8.4%</span>
+                        </td>
+                        <td class="author">Noam Chomsky</td>
+                        <td>0%</td>
+                        <td>3995</td>
+                        <td><span class="language">unknown</span> 81%</td>
+                        <td class="year-range">1999</td>
+                        <td class="year-range">1943-2020</td>
+                        <td>Routledge</td>
+                        <td class="example">Harry Potter and the Half-Blood Prince (Harry Pott...</td>
+                    </tr>
+    
+                    <tr>
+                        <td class="cluster-id">6</td>
+                        <td class="size">
+                            2,248
+                            <span class="badge badge-small">Pequeno</span>
+                            <br>
+                            <span class="percentage">4.1%</span>
+                        </td>
+                        <td class="author">Sue Grafton</td>
+                        <td>1%</td>
+                        <td>1981</td>
+                        <td><span class="language">unknown</span> 81%</td>
+                        <td class="year-range">2001</td>
+                        <td class="year-range">1934-2019</td>
+                        <td>For Dummies</td>
+                        <td class="example">Ruby Quickly: Ruby and Rails for the Real World</td>
+                    </tr>
+    
+                    <tr>
+                        <td class="cluster-id">7</td>
+                        <td class="size">
+                            4,298
+                            <span class="badge badge-medium">Médio</span>
+                            <br>
+                            <span class="percentage">7.7%</span>
+                        </td>
+                        <td class="author">Stephen King</td>
+                        <td>0%</td>
+                        <td>2796</td>
+                        <td><span class="language">unknown</span> 51%</td>
+                        <td class="year-range">1999</td>
+                        <td class="year-range">1900-2019</td>
+                        <td>Penguin Books</td>
+                        <td class="example">The Changeling Sea</td>
+                    </tr>
+    
+                    <tr>
+                        <td class="cluster-id">8</td>
+                        <td class="size">
+                            3,952
+                            <span class="badge badge-medium">Médio</span>
+                            <br>
+                            <span class="percentage">7.1%</span>
+                        </td>
+                        <td class="author">Cook's Illustrated Magazine</td>
+                        <td>0%</td>
+                        <td>3412</td>
+                        <td><span class="language">unknown</span> 81%</td>
+                        <td class="year-range">2000</td>
+                        <td class="year-range">1931-2019</td>
+                        <td>Cambridge University Press</td>
+                        <td class="example">The Ultimate Hitchhiker's Guide: Five Complete Nov...</td>
+                    </tr>
+    
+                    <tr>
+                        <td class="cluster-id">9</td>
+                        <td class="size">
+                            8,783
+                            <span class="badge badge-large">Grande</span>
+                            <br>
+                            <span class="percentage">15.8%</span>
+                        </td>
+                        <td class="author">William Shakespeare</td>
+                        <td>0%</td>
+                        <td>4539</td>
+                        <td><span class="language">eng</span> 100%</td>
+                        <td class="year-range">2000</td>
+                        <td class="year-range">1913-2020</td>
+                        <td>Vintage</td>
+                        <td class="example">Harry Potter Boxed Set, Books 1-5 (Harry Potter, #...</td>
+                    </tr>
+    
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        function filterTable() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toUpperCase();
+            const table = document.getElementById('clusterTable');
+            const tr = table.getElementsByTagName('tr');
+
+            for (let i = 1; i < tr.length; i++) {
+                const row = tr[i];
+                const text = row.textContent || row.innerText;
+
+                if (text.toUpperCase().indexOf(filter) > -1) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            }
+        }
+
+        // Adicionar click para destacar linha
+        const rows = document.querySelectorAll('tbody tr');
+        rows.forEach(row => {
+            row.addEventListener('click', function() {
+                rows.forEach(r => r.style.backgroundColor = '');
+                this.style.backgroundColor = '#e8eaf6';
+            });
+        });
+    </script>
+</body>
+</html>
