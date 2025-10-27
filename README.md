@@ -1,339 +1,381 @@
-# 📚 Discovery Bottom-Up com Dados: Análise Goodreads
+# 📚 Discovery Bottom-Up com Dados - Goodreads
+
+Projeto prático de **Product Discovery orientado a dados**, explorando como Machine Learning e análise de dados podem revelar oportunidades de produto e validar hipóteses técnicas.
 
 ## 🎯 Sobre o Projeto
 
-Este projeto demonstra um **discovery bottom-up orientado a dados** usando uma base de livros do Goodreads. O objetivo é explorar como dados podem revelar oportunidades de produto e soluções baseadas em Machine Learning.
+Este projeto demonstra um processo completo de **discovery bottom-up** usando dados reais de livros do Goodreads. O objetivo é mostrar como gestores de produto podem avaliar a viabilidade técnica de soluções baseadas em dados antes de priorizá-las.
 
-### 🔍 O que é Discovery Bottom-Up?
+### 📖 Contexto
 
-Discovery bottom-up é um processo de descoberta que começa com ideias, soluções ou dados disponíveis e busca conectá-los à estratégia e objetivos de negócio. Diferente do discovery top-down (que parte dos objetivos), este método explora possibilidades a partir do que já existe.
+Baseado no artigo "Discovery Bottom-Up com Dados", este projeto ilustra:
+- Como avaliar qualidade e estrutura de dados
+- Identificar o que é possível (e o que não é) com dados disponíveis
+- Validar hipóteses técnicas através de POCs (Provas de Conceito)
+- Conectar soluções técnicas com objetivos de negócio
 
----
-
-## 📊 Dataset
-
-**Fonte:** Goodreads (Kaggle)  
-**Arquivo:** `book1-100k.csv`  
-**Registros:** 58.292 livros  
-**Período:** Dados coletados até 2020
-
-### Estrutura dos Dados
-
-| Coluna | Descrição | Tipo | % Nulos |
-|--------|-----------|------|---------|
-| `id` | Identificador único do livro | int | 0% |
-| `name` | Título do livro | str | 0% |
-| `authors` | Autor(es) do livro | str | 0% |
-| `publishyear` | Ano de publicação | int | ~0% |
-| `publisher` | Editora | str | 0.8% |
-| `language` | Idioma | str | 65% |
-| `isbn` | ISBN (International Standard Book Number) | str | 0.9% |
-| `pagesnumber` | Número de páginas | int | 58% |
-| `rating` | Avaliação média | float | 0% |
-| `countsofreview` | Quantidade de reviews | int | 0% |
-| `ratingdist1-5` | Distribuição de notas 1-5 | str | 0% |
-| `ratingdisttotal` | Total de avaliações | str | 0% |
-
----
-
-## 🛠️ Análises Realizadas
-
-### 1️⃣ **Análise Exploratória de Dados (EDA)**
-- Avaliação de qualidade dos dados
-- Identificação de valores nulos e outliers
-- Análise de distribuições estatísticas
-
-### 2️⃣ **Validação e Limpeza**
-#### ✅ Anos de Publicação
-- Filtro de anos inválidos (> 2020)
-- Detecção de outliers temporais
-
-#### ✅ Validação de ISBN
-- Limpeza e normalização de ISBNs
-- Validação de ISBN-10 e ISBN-13
-- Conversão de ISBN-10 para ISBN-13
-- Detecção de duplicatas
-
-#### ✅ Detecção de Duplicatas de Títulos
-- Normalização de texto (remoção de acentos, case, pontuação)
-- Vetorização TF-IDF
-- Similaridade cosseno
-- Clustering por Union-Find
-- **Resultado:** 2.060 clusters de duplicatas encontrados
-
-### 3️⃣ **Canonização de Dados**
-
-> **Canonização** é o processo de identificar registros diferentes que representam a mesma entidade real.
-
-**Métodos utilizados:**
-- **Chaves fortes:** ISBN (194 duplicatas)
-- **TF-IDF + Similaridade:** Títulos (3.074 duplicatas - 5%)
-- **Embeddings:** Agrupamento por características
-
-### 4️⃣ **Dataset Limpo**
-Criação de dataset processado removendo:
-- Anos inválidos (> 2020)
-- Duplicatas de ISBN
-- Duplicatas de título
-
-### 5️⃣ **Clustering de Livros Similares (POC)**
-**Objetivo:** Agrupar livros similares para recomendação
-
-**Features utilizadas:**
-- Título (TF-IDF, peso 3.0)
-- Autor (TF-IDF, peso 2.0)
-- Língua (One-Hot Encoding)
-- Ano (normalizado, peso 0.5)
-- Publisher (TF-IDF, peso 0.5)
-
-**Algoritmos testados:**
-- **K-Means:** Clustering baseado em centróides
-- **DBSCAN:** Clustering por densidade
-- **Hierarchical:** Clustering hierárquico
-
-**Métricas de avaliação:**
-- Silhouette Score
-- Davies-Bouldin Score
-- Calinski-Harabasz Score
-
----
-
-## 📁 Estrutura do Projeto
+## 🗂️ Estrutura do Projeto
 
 ```
 .
-├── data/
-│   └── book1-100k.csv                          # Dataset original
-├── exports/
-│   ├── clean_data/
-│   │   ├── book_data_clean.csv                 # Dataset limpo
-│   │   ├── book_data_removed.csv               # Registros removidos
-│   │   └── cleaning_statistics.csv             # Estatísticas da limpeza
-│   ├── duplicatas/
-│   │   ├── title_near_duplicates_pairs.csv     # Pares de títulos similares
-│   │   ├── title_near_duplicates_clusters.csv  # Clusters de duplicatas
-│   │   ├── books_with_duplicates.csv           # Livros duplicados
-│   │   ├── duplicates_statistics.csv           # Stats de duplicatas
-│   │   ├── isbn_relatorio_completo.csv         # Relatório ISBN
-│   │   ├── isbn_duplicatas.csv                 # ISBNs duplicados
-│   │   ├── isbn_invalidos.csv                  # ISBNs inválidos
-│   │   └── isbn_statistics.csv                 # Stats de ISBN
-│   └── clustering/
-│       ├── books_clustered.csv                 # Dataset com clusters
-│       ├── cluster_summary.csv                 # Resumo dos clusters
-│       ├── clustering_metrics.csv              # Métricas de avaliação
-│       ├── cluster_X_examples.csv              # Exemplos por cluster
-│       ├── clustering_visualization.png        # Visualizações 2D
-│       ├── clustering_3d.png                   # Visualização 3D
-│       └── elbow_analysis.png                  # Análise de K ótimo
-├── goodreads_book1-100_eda.ipynb              # Notebook principal
-└── README.md                                   # Este arquivo
+├── data/                          # Dados originais (não versionados)
+│   └── book1-100k.csv            # Dataset Goodreads (~58k livros)
+│
+├── exports/                       # Todos os outputs do projeto
+│   ├── clean_data/               # Dados limpos e processados
+│   ├── clustering/               # Resultados de clusterização
+│   │   └── analysis/            # Análises e visualizações
+│   ├── duplicatas/               # Análises de ISBN e duplicatas
+│   └── eda/                      # Análise exploratória
+│
+├── scripts/                       # Scripts Python organizados
+│   ├── 01_limpeza_dados.py
+│   ├── 02_analise_eda.py
+│   ├── 03_clustering_poc.py
+│   ├── 04_isbn_validacao.py
+│   └── 05_visualizar_clusters.py
+│
+├── notebooks/                     # Jupyter notebooks (opcional)
+│   └── goodreads_book1-100_eda.ipynb
+│
+├── requirements.txt               # Dependências Python
+└── README.md                      # Este arquivo
 ```
 
----
-
-## 🚀 Como Executar
+## 🚀 Começando
 
 ### Pré-requisitos
+
+- Python 3.8 ou superior
+- pip (gerenciador de pacotes Python)
+
+### Instalação
+
+1. **Clone o repositório:**
 ```bash
-pip install pandas numpy matplotlib scikit-learn pathlib
+git clone <url-do-repositorio>
+cd discovery-bottom-up-dados
 ```
 
-### Executar as Análises
+2. **Crie um ambiente virtual (recomendado):**
+```bash
+python -m venv venv
 
-#### 1. Análise Exploratória
-Abra o notebook `goodreads_book1-100_eda.ipynb` e execute as células sequencialmente.
+# Windows
+venv\Scripts\activate
 
-#### 2. Validação de Anos Inválidos
-```python
-# Execute o código de filtro de anos
-year_col = "publishyear"
-invalidYear = df[df[year_col] > 2020].copy()
-validYear = df[df[year_col] <= 2020].copy()
+# Linux/Mac
+source venv/bin/activate
 ```
 
-#### 3. Validação de ISBN
-```python
-# Execute isbn_simples_v3.py
-# Gera relatórios de ISBN na pasta exports/duplicatas/
+3. **Instale as dependências:**
+```bash
+pip install -r requirements.txt
 ```
 
-#### 4. Detecção de Duplicatas de Título
-```python
-# Execute duplicatas_melhorado_v2.py
-# Gera clusters e estatísticas na pasta exports/duplicatas/
+4. **Coloque o dataset na pasta correta:**
+```bash
+# Crie a pasta data/ e adicione o arquivo book1-100k.csv
+mkdir data
+# Baixe o dataset do Kaggle e coloque em data/book1-100k.csv
 ```
 
-#### 5. Criar Dataset Limpo
-```python
-# Execute criar_dataset_limpo.py
-# Gera dataset limpo em exports/clean_data/
+## 📊 Pipeline de Análise
+
+### 1️⃣ Limpeza e Preparação dos Dados
+
+```bash
+python scripts/01_limpeza_dados.py
 ```
 
-#### 6. Clustering POC
-```python
-# Execute clustering_poc_v2.py
-# Requer dataset limpo previamente gerado
-# Gera clusters e visualizações em exports/clustering/
+**O que faz:**
+- Carrega e padroniza nomes de colunas
+- Trata valores ausentes e outliers
+- Normaliza datas de publicação
+- Cria dataset limpo em `exports/clean_data/`
+
+**Principais descobertas:**
+- 58% de dados ausentes em `pageNumbers`
+- 65% de dados ausentes em `Language`
+- Datas de publicação com outliers (livros em 3006!)
+- ISBN com ~1% de valores nulos
+
+### 2️⃣ Análise Exploratória (EDA)
+
+```bash
+python scripts/02_analise_eda.py
 ```
 
----
+**O que faz:**
+- Estatísticas descritivas completas
+- Distribuições de variáveis
+- Análise de correlações
+- Identificação de padrões temporais
+- Visualizações exportadas
 
-## 📈 Resultados Principais
+**Outputs:**
+- `exports/eda/` - Gráficos e relatórios
+- Estatísticas por década, autor, língua, publisher
 
-### 🧹 Qualidade dos Dados
+### 3️⃣ Validação de ISBN e Duplicatas
 
-| Métrica | Valor |
-|---------|-------|
-| Total de livros | 58.292 |
-| Anos inválidos (> 2020) | ~0.5% |
-| ISBNs duplicados | 194 (chave forte) |
-| Títulos duplicados (TF-IDF) | 3.074 (5%) |
-| Clusters de duplicatas | 2.060 |
+```bash
+python scripts/04_isbn_validacao.py
+```
 
-### 🎯 Insights do Clustering
+**O que faz:**
+- Valida ISBNs usando algoritmos de check digit
+- Detecta duplicatas usando chave forte (ISBN)
+- Identifica problemas de normalização
+- Exporta relatórios detalhados
 
-- **Número ótimo de clusters:** Determinado por Elbow Method e Silhouette Score
-- **Silhouette Score:** ~0.3-0.5 (depende de K)
-- **Features mais importantes:** Título > Autor > Língua
-- **Aplicação:** Sistema de recomendação por similaridade
+**Principais descobertas:**
+- 194 duplicatas encontradas via ISBN
+- ISBNs-10 e ISBN-13 misturados
+- Necessidade de canonização de dados
 
----
+### 4️⃣ Prova de Conceito - Clustering
 
-## 🤖 Soluções Possíveis com Dados
+```bash
+python scripts/03_clustering_poc.py
+```
 
-### ✅ Viáveis com Dataset Atual
+**O que faz:**
+- Implementa K-Means e Hierarchical Clustering
+- Usa TF-IDF para vetorização de texto
+- Avalia qualidade dos clusters (Silhouette, Davies-Bouldin)
+- Aplica PCA para redução dimensional
+- Exporta clusters e métricas
 
-| Solução | Descrição | Viabilidade |
-|---------|-----------|-------------|
-| **Clustering de livros** | Agrupar livros similares por metadados | ✅ Implementado |
-| **Previsão de popularidade** | Estimar engajamento futuro | ✅ Viável |
-| **Detecção de duplicatas** | Canonização automática | ✅ Implementado |
-| **Análise de tendências** | Padrões temporais de publicação | ✅ Viável |
+**Features utilizadas:**
+- Nome do livro (TF-IDF)
+- Autor
+- Língua
+- Ano de publicação
+- Publisher
 
-### ⚠️ Limitações do Dataset
+**Resultados:**
+- ✅ **Sucesso técnico**: Clusters foram criados
+- ⚠️ **Limitação de valor**: Agrupamentos muito genéricos
+- 📋 **Conclusão**: Dados insuficientes para recomendações satisfatórias
 
-| Solução | Motivo da Limitação |
-|---------|---------------------|
-| **Classificação de gênero** | Falta coluna `genres` ou `description` |
-| **Recomendação personalizada** | Falta dados de interação de usuários |
-| **Análise de sentimento** | Falta texto de reviews |
-| **Geração de sinopses** | Falta `description` para treino |
+### 5️⃣ Análise Visual dos Clusters
 
----
+```bash
+python scripts/05_visualizar_clusters.py
+```
 
-## 💡 Aprendizados e Boas Práticas
+**O que faz:**
+- Gera tabelas interativas HTML
+- Cria visualizações comparativas
+- Exporta análise detalhada de cada cluster
+- Identifica características distintivas
 
-### 📊 Qualidade de Dados
-1. **Sempre valide antes de usar:** Anos, ISBNs, duplicatas
-2. **Canonização é essencial:** 5% de duplicatas podem distorcer resultados
-3. **Dados não normalizados exigem tratamento:** Títulos, autores, publishers
+**Outputs:**
+- `cluster_table.html` - Tabela interativa com busca
+- `cluster_simple.html` - Visão simplificada em cards
+- `cluster_analysis.html` - Relatório completo
+- Gráficos comparativos (PNG)
 
-### 🤖 Machine Learning
-1. **PCA reduz dimensionalidade:** Preserva 95% da variância
-2. **Multiple algoritmos:** Compare K-Means, DBSCAN, Hierarchical
-3. **Métricas são críticas:** Silhouette, Davies-Bouldin, Calinski-Harabasz
-4. **Pesos nas features:** Título tem mais importância que ano
+## 🎓 Aprendizados e Conclusões
 
-### 🎯 Produto
-1. **Discovery bottom-up:** Conecte dados disponíveis à estratégia
-2. **POC antes de escalar:** Valide viabilidade técnica
-3. **Custos importam:** ML supervisionado vs não supervisionado
-4. **Erros são inevitáveis:** Soluções probabilísticas precisam de guardrails
+### ✅ Viabilidade de Negócio
+**Solução proposta:** Agrupamento de livros similares para recomendação inteligente
 
----
+**Impacto esperado:**
+- ✅ Aumentar engajamento na plataforma
+- ✅ Melhorar descoberta de livros
+- ✅ Potencial aumento em cliques afiliados
 
-## 📚 Referências e Conceitos
+### ⚠️ Viabilidade Técnica
 
-### Machine Learning
+**Status:** Parcialmente viável com limitações
 
-#### **Aprendizado Não Supervisionado**
-- **K-Means:** Agrupa por distância a centróides
-- **DBSCAN:** Agrupa por densidade, detecta outliers
-- **PCA:** Reduz dimensionalidade mantendo variância
+**Dados disponíveis:**
+- ✅ Título, autor, ano, língua, publisher
+- ❌ Descrição/sinopse dos livros
+- ❌ Gêneros/categorias
+- ❌ Reviews e comentários
+- ❌ Dados de usuários
+- ❌ Histórico de leitura
 
-#### **Embeddings e Similaridade**
-- **TF-IDF:** Term Frequency - Inverse Document Frequency
-- **Similaridade Cosseno:** Mede ângulo entre vetores
-- **Union-Find:** Algoritmo para agrupar clusters
+**Conclusão:**
+> "Apenas com título, língua, autor, ano de publicação e dados gerais, os agrupamentos de livros são muito genéricos e não entregam valor de uma recomendação satisfatória."
 
-### Métricas de Clustering
+### 📊 Problemas Identificados
 
-- **Silhouette Score:** [-1, 1] - Maior é melhor (>0.5 é bom)
-- **Davies-Bouldin:** [0, ∞] - Menor é melhor
-- **Calinski-Harabasz:** [0, ∞] - Maior é melhor
+1. **Pipeline de dados:**
+   - Falta de normalização (autores, publishers)
+   - Ausência de canonização (194 duplicatas por ISBN, ~3074 por TF-IDF)
+   - Outliers temporais não tratados
 
-### Canonização de Dados
+2. **Qualidade de cadastros:**
+   - Campos não normalizados
+   - Validações fracas durante cadastro
+   - Dados inconsistentes
 
-- **Chaves fortes:** ISBN, IDs únicos
-- **Chaves fracas:** Nome, autor (requerem normalização)
-- **Métodos probabilísticos:** TF-IDF, BERT, embeddings
+3. **Completude:**
+   - Dados críticos ausentes (descrição, gênero, reviews)
+   - Sem dados de usuários
+   - Sem histórico de interações
 
----
+## 🔄 Próximos Passos
 
-## 🎓 Contexto: Discovery Bottom-Up
+### Curto Prazo
+1. **Melhorar pipeline de dados:**
+   - Implementar validações no cadastro
+   - Normalizar autores e publishers
+   - Canonizar dados existentes
 
-### Missão Goodreads
-> "O livro certo, nas mãos certas, no tempo certo, pode mudar o mundo."
+2. **Testar abordagens alternativas:**
+   - DBSCAN para clusters de densidade
+   - Outros métodos de embedding (BERT)
+   - Combinação de múltiplos modelos
 
-### Objetivo
-Ajudar usuários a descobrir livros que amam e tirar mais da leitura.
+### Médio Prazo
+3. **Adquirir dados complementares:**
+   - Scraping de descrições/sinopses
+   - Integração com APIs de livros
+   - Coleta de gêneros via crowdsourcing
 
-### Modelo de Receita
-- Links afiliados (compre aqui)
-- Anúncios
-- Sorteios (Giveaways)
+4. **Dados de usuários:**
+   - Histórico de leitura
+   - Reviews e avaliações
+   - Interações sociais
 
-### Oportunidades Identificadas
-1. **Recomendação por similaridade:** Agrupar livros similares
-2. **Canonização de dados:** Melhorar qualidade do catálogo
-3. **Detecção de tendências:** Insights de publicação
-4. **Previsão de popularidade:** Identificar best-sellers
+### Longo Prazo
+5. **Nova POC com dados completos:**
+   - Recomendação colaborativa
+   - Hybrid models (conteúdo + colaborativo)
+   - A/B testing com usuários reais
 
----
+## 🛠️ Tecnologias Utilizadas
 
-## 🔧 Tecnologias Utilizadas
+- **Python 3.8+**
+- **pandas** - Manipulação de dados
+- **numpy** - Computação numérica
+- **scikit-learn** - Machine Learning (clustering, TF-IDF, PCA)
+- **matplotlib** - Visualizações
 
-- **Python 3.x**
-- **Pandas:** Manipulação de dados
-- **NumPy:** Computação numérica
-- **Scikit-learn:** Machine Learning
-  - TfidfVectorizer
-  - KMeans, DBSCAN, AgglomerativeClustering
-  - PCA
-  - Métricas (silhouette_score, davies_bouldin_score, etc.)
-- **Matplotlib:** Visualizações
-- **Pathlib:** Gerenciamento de arquivos
+## 📚 Referências e Recursos
 
----
+### Conceitos Abordados
+- Discovery bottom-up em produto
+- Análise exploratória de dados (EDA)
+- Canonização de dados
+- Clustering não-supervisionado
+- Validação de hipóteses técnicas
+
+### Modelos de ML Mencionados
+- **Clusterização:** K-Means, Hierarchical, DBSCAN
+- **Embeddings:** TF-IDF, BERT, word2vec
+- **Classificação:** Decision Trees, Random Forest, XGBoost
+- **Recomendação:** Collaborative Filtering, Content-Based
+
+### Links Úteis
+- [Kaggle - Goodreads Dataset](https://www.kaggle.com/)
+- [Scikit-learn Documentation](https://scikit-learn.org/)
+- [Hugging Face - Models](https://huggingface.co/models)
+
+## 💡 Para Gestores de Produto
+
+### O que Este Projeto Ensina
+
+1. **Avaliar antes de priorizar:**
+   - Nem toda ideia com dados é tecnicamente viável
+   - POCs baratas validam hipóteses antes de investir
+
+2. **Qualidade > Quantidade:**
+   - Ter dados não é suficiente
+   - Dados limpos e canonizados são essenciais
+
+3. **Entender o possível:**
+   - Machine Learning tem aplicações bem definidas
+   - Conhecer as ferramentas disponíveis expande possibilidades
+
+4. **Riscos probabilísticos:**
+   - Soluções de ML/AI sempre erram
+   - Avaliar impacto do erro é crucial
+   - Intervenção humana pode ser necessária
+
+### Framework de Decisão
+
+```
+Ideia com dados
+    ↓
+Avaliar qualidade dos dados
+    ↓
+Identificar o que é possível
+    ↓
+POC técnica rápida
+    ↓
+Dados suficientes? → NÃO → Adquirir dados ou pivotar
+    ↓ SIM
+Valor entregue satisfatório? → NÃO → Testar alternativas
+    ↓ SIM
+Conectar com objetivos de negócio
+    ↓
+Priorizar ou descartar
+```
+
+## 📄 Licença
+
+Este projeto é um material educacional baseado no artigo "Discovery Bottom-Up com Dados".
 
 ## 👥 Autor
 
-**Autor**: João Caetano Groff Gomes, Gestor de Produto AI
-
-**Projeto Educacional:** Discovery Bottom-Up com Dados  
-**Contexto:** Análise exploratória para gestão de produto orientada a dados
+Projeto criado como demonstração prática de product discovery orientado a dados.
 
 ---
 
-## 📝 Licença
+## 🔍 Análise Detalhada do Dataset
 
-Este é um projeto educacional para demonstração de conceitos de discovery e análise de dados.
+### Colunas e Qualidade
+
+| Coluna | Tipo | Obrigatório | Normalizado | % Null/Inválido | Uso em ML |
+|--------|------|-------------|-------------|-----------------|-----------|
+| id | int | ✅ Sim | ✅ Sim | 0% | Chave primária |
+| name | str | ✅ Sim | ❌ Não | 0% | ✅ Feature principal |
+| pageNumbers | int | ❌ Não | ✅ Sim | 58% | ⚠️ Limitado |
+| publishMonth | int | ✅ Sim | ✅ Sim | 0% | ✅ Feature temporal |
+| publishDay | int | ✅ Sim | ✅ Sim | 0% | ✅ Feature temporal |
+| publishYear | int | ✅ Sim | ❌ Não | ~0% | ✅ Feature temporal |
+| publisher | str | ❌ Não | ❌ Não | 0.8% | ⚠️ Requer normalização |
+| countsOfReview | int | ✅ Sim | ✅ Sim | 0% | ✅ Popularidade |
+| language | str | ❌ Não | ❌ Não | 65% | ⚠️ Muito ausente |
+| authors | str | ✅ Sim | ❌ Não | 0% | ⚠️ Requer normalização |
+| rating | decimal | ✅ Sim | ✅ Sim | 0% | ✅ Qualidade |
+| isbn | int | ❌ Não | ❌ Não | 0.9% | ⚠️ Chave fraca |
+
+### Problemas Identificados
+
+#### 🔴 Críticos
+- Falta de descrição/sinopse dos livros
+- Falta de gêneros/categorias
+- Ausência de dados de usuários
+- 65% de dados ausentes em língua
+
+#### 🟡 Importantes
+- Autores não normalizados (duplicatas)
+- Publishers não normalizados
+- ISBN com duplicatas e inconsistências
+- Outliers temporais (livros em 3006)
+
+#### 🟢 Menores
+- PageNumbers com muitos nulos (58%)
+- Datas separadas em 3 colunas
+- Formato CSV (lento para produção)
 
 ---
 
-## 📞 Contribuições
+## 📞 Suporte
 
-Sugestões e melhorias são bem-vindas! Abra uma issue ou pull request.
-
----
-
-## 🙏 Agradecimentos
-
-- **Kaggle:** Pela disponibilização do dataset Goodreads
-- **Goodreads:** Pelos dados públicos de livros
-- **Comunidade Python:** Pelas excelentes bibliotecas open-source
+Para dúvidas sobre o projeto:
+1. Leia a documentação completa
+2. Revise o artigo "Discovery Bottom-Up com Dados"
+3. Analise os notebooks e scripts
+4. Abra uma issue no repositório
 
 ---
 
-**Última atualização:** Outubro 2025
+**🎯 Lembre-se:** O objetivo não é ter a melhor solução técnica, mas **validar se seus dados permitem entregar valor real ao usuário antes de priorizar a solução**.
